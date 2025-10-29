@@ -1,36 +1,50 @@
 import React, { useState } from "react";
-import ItemForm from "./ItemForm";
-import Filter from "./Filter";
-import Item from "./Item";
-import initialItems from "../data/items";
+import { v4 as uuid } from "uuid";
 
-function App() {
-  const [items, setItems] = useState(initialItems);
-  const [search, setSearch] = useState("");
+function ItemForm({ onItemFormSubmit }) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("Produce");
 
-  function handleSearchChange(newSearch) {
-    setSearch(newSearch);
+  function handleSubmit(event) {
+    event.preventDefault();
+    const newItem = {
+      id: uuid(),
+      name,
+      category,
+    };
+    onItemFormSubmit(newItem);
+    setName("");
+    setCategory("Produce");
   }
-
-  function handleItemFormSubmit(newItem) {
-    setItems([...items, newItem]);
-  }
-
-  const itemsToDisplay = items.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
-    <div className="App">
-      <ItemForm onItemFormSubmit={handleItemFormSubmit} />
-      <Filter search={search} onSearchChange={handleSearchChange} />
-      <ul className="Items">
-        {itemsToDisplay.map((item) => (
-          <Item key={item.id} name={item.name} category={item.category} />
-        ))}
-      </ul>
-    </div>
+    <form className="ItemForm" onSubmit={handleSubmit} data-testid="item-form">
+      <label htmlFor="item-name">Name</label>
+      <input
+        id="item-name"
+        type="text"
+        name="name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Item name"
+        required
+        data-testid="name-input"
+      />
+      <label htmlFor="item-category">Category</label>
+      <select
+        id="item-category"
+        name="category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        data-testid="category-select"
+      >
+        <option value="Produce">Produce</option>
+        <option value="Dairy">Dairy</option>
+        <option value="Dessert">Dessert</option>
+      </select>
+      <button type="submit">Add to List</button>
+    </form>
   );
 }
 
-export default App;
+export default ItemForm;
